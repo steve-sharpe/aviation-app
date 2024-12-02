@@ -31,10 +31,10 @@ function App() {
       getAirportByCity: `/airports/city/${parameter}`, // Replace {city} dynamically
       getAllFlights: '/flights',
       getFlightById: `/flights/${parameter}`, // Replace {id} dynamically
-      getFlightsByDepartureAirportId: `/flights/departure/airport/${parameter}`,
-      getFlightsByDepartureAirportCode: `/flights/departure/code/${parameter}`,
-      getFlightsByArrivalAirportId: `/flights/arrival/airport/${parameter}`,
-      getFlightsByArrivalAirportCode: `/flights/arrival/code/${parameter}`,
+      // getFlightsByDepartureAirportId: `/flights/departure/airport/${parameter}`,
+      // getFlightsByDepartureAirportCode: `/flights/departure/code/${parameter}`,
+      // getFlightsByArrivalAirportId: `/flights/arrival/airport/${parameter}`,
+      // getFlightsByArrivalAirportCode: `/flights/arrival/code/${parameter}`,
       getAllPassengers: '/passengers',
       getPassengerById: `/passengers/${parameter}`,
       getPassengersByFlightNumber: `/passengers/flight/${parameter}`,
@@ -70,11 +70,11 @@ function App() {
         <button onClick={() => handleReportSelection('getAirportByCity', 'New York')}>Airport by City (Example: New York)</button>
 
         <button onClick={() => handleReportSelection('getAllFlights')}>All Flights</button>
-        <button onClick={() => handleReportSelection('getFlightById', 101)}>Flight by ID (Example: 101)</button>
-        <button onClick={() => handleReportSelection('getFlightsByDepartureAirportId', 1)}>Flights by Departure Airport ID (Example: 1)</button>
+        <button onClick={() => handleReportSelection('getFlightById', 1)}>Flight by ID (Example: 101)</button>
+        {/* <button onClick={() => handleReportSelection('getFlightsByDepartureAirportId', 1)}>Flights by Departure Airport ID (Example: 1)</button>
         <button onClick={() => handleReportSelection('getFlightsByDepartureAirportCode', 'JFK')}>Flights by Departure Airport Code (Example: JFK)</button>
         <button onClick={() => handleReportSelection('getFlightsByArrivalAirportId', 2)}>Flights by Arrival Airport ID (Example: 2)</button>
-        <button onClick={() => handleReportSelection('getFlightsByArrivalAirportCode', 'LAX')}>Flights by Arrival Airport Code (Example: LAX)</button>
+        <button onClick={() => handleReportSelection('getFlightsByArrivalAirportCode', 'LAX')}>Flights by Arrival Airport Code (Example: LAX)</button> */}
 
         <button onClick={() => handleReportSelection('getAllPassengers')}>All Passengers</button>
         <button onClick={() => handleReportSelection('getPassengerById', 1)}>Passenger by ID (Example: 1)</button>
