@@ -1,124 +1,94 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
 
-const API_BASE_URL = 'http://localhost:8080'; // Assuming your backend is running on localhost:8080
+const API_BASE_URL = 'http://localhost:8080'; // Backend base URL
 
 function App() {
-  const [data, setData] = useState({
-    airports: [],
-    flights: [],
-    passengers: [],
-    aircrafts: [],
-    gates: [],
-    airlines: []
-  });
-  const [selectedEntity, setSelectedEntity] = useState('');
-  const [selectedAirport, setSelectedAirport] = useState(null);
+  const [selectedReport, setSelectedReport] = useState('');
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetchData('airports');
-    fetchData('flights');
-    fetchData('passengers');
-    fetchData('aircrafts');
-    fetchData('gates');
-    fetchData('airlines');
-  }, []);
-
-  const fetchData = async (entity) => {
+  const fetchReport = async (endpoint) => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE_URL}/${entity}`);
-      setData(prevData => ({
-        ...prevData,
-        [entity]: Array.isArray(response.data) ? response.data : []
-      }));
+      const response = await axios.get(`${API_BASE_URL}${endpoint}`);
+      setReportData(response.data);
     } catch (error) {
-      console.error(`Error fetching ${entity}:`, error);
-      setData(prevData => ({
-        ...prevData,
-        [entity]: []
-      }));
+      console.error('Error fetching report:', error);
+      setReportData({ error: 'Failed to fetch data. Please try again.' });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const showFlightsAtAirport = (airportId) => {
-    const relatedFlights = data.flights.filter(flight => 
-      (flight.departureAirport && flight.departureAirport.id === airportId) || 
-      (flight.arrivalAirport && flight.arrivalAirport.id === airportId)
-    );
-    setSelectedAirport({ airportId, relatedFlights });
+  const handleReportSelection = (report, parameter = null) => {
+    setSelectedReport(report);
+    const endpoints = {
+      getAllAirports: '/airports',
+      getAirportById: `/airports/${parameter}`, // Replace {id} dynamically
+      getAirportByCode: `/airports/code/${parameter}`, // Replace {code} dynamically
+      getAirportByCity: `/airports/city/${parameter}`, // Replace {city} dynamically
+      getAllFlights: '/flights',
+      getFlightById: `/flights/${parameter}`, // Replace {id} dynamically
+      getFlightsByDepartureAirportId: `/flights/departure/airport/${parameter}`,
+      getFlightsByDepartureAirportCode: `/flights/departure/code/${parameter}`,
+      getFlightsByArrivalAirportId: `/flights/arrival/airport/${parameter}`,
+      getFlightsByArrivalAirportCode: `/flights/arrival/code/${parameter}`,
+      getAllPassengers: '/passengers',
+      getPassengerById: `/passengers/${parameter}`,
+      getPassengersByFlightNumber: `/passengers/flight/${parameter}`,
+      getAllAircraft: '/aircrafts',
+      getAircraftById: `/aircrafts/${parameter}`,
+      getAllAirlines: '/airlines',
+      getAirlineByCode: `/airlines/code/${parameter}`,
+      getGatesByAirportId: `/gates/airport/${parameter}`,
+    };
+
+    fetchReport(endpoints[report]);
   };
 
-  const renderDetails = (entity, item) => {
-    switch (entity) {
-      case 'airports':
-        return (
-          <div key={item.airportId}>
-            <h3>{item.airportName} ({item.cityName})</h3>
-            <p>Airport Code: {item.airportCode}</p>
-            <p>Number of Gates: {item.numberOfGates}</p>
-            <button onClick={() => showFlightsAtAirport(item.airportId)}>Show Flights</button>
-          </div>
-        );
-      case 'flights':
-        const aircraft = item.aircraft ? data.aircrafts.find(a => a.aircraftId === item.aircraft.aircraftId) : null;
-        const airline = item.airline ? data.airlines.find(a => a.airlineId === item.airline.airlineId) : null;
-        return (
-          <div key={item.flightId}>
-            <h3>{item.flightNumber}</h3>
-            <p>Destination: {item.destination}</p>
-            <p>Aircraft: {aircraft ? aircraft.aircraftModel : 'N/A'}</p>
-            <p>Airline: {airline ? airline.airlineName : 'N/A'}</p>
-          </div>
-        );
-      case 'passengers':
-        const flight = data.flights.find(flight => flight.flightId === item.flightId);
-        return (
-          <div key={item.passengerId}>
-            <h3>{item.name}</h3>
-            <p>Flight: {flight ? `${flight.flightNumber} - ${flight.destination}` : 'N/A'}</p>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
+  const renderReport = () => {
+    if (!reportData) return <p>No data to display. Select a report.</p>;
+    if (reportData.error) return <p>{reportData.error}</p>;
 
-  const renderEntityData = () => {
-    if (!selectedEntity) return <p>Select an entity from the menu.</p>;
     return (
       <div>
-        {data[selectedEntity].map(item => renderDetails(selectedEntity, item))}
-        {selectedEntity === 'airports' && renderFlightsAtAirport()}
-      </div>
-    );
-  };
-
-  const renderFlightsAtAirport = () => {
-    if (!selectedAirport) return null;
-    return (
-      <div>
-        <h3>Flights at Airport {selectedAirport.airportId}</h3>
-        <ul>
-          {selectedAirport.relatedFlights.map(flight => (
-            <li key={flight.flightId}>
-              {flight.flightNumber} - {flight.destination}
-            </li>
-          ))}
-        </ul>
+        <h3>Report: {selectedReport}</h3>
+        <pre>{JSON.stringify(reportData, null, 2)}</pre>
       </div>
     );
   };
 
   return (
     <div className="App">
-      <h1>Aviation Dashboard</h1>
+      <h1>Aviation Reports</h1>
       <nav>
-        <button onClick={() => setSelectedEntity('airports')}>Airports</button>
-        <button onClick={() => setSelectedEntity('flights')}>Flights</button>
-        <button onClick={() => setSelectedEntity('passengers')}>Passengers</button>
+        <button onClick={() => handleReportSelection('getAllAirports')}>All Airports</button>
+        <button onClick={() => handleReportSelection('getAirportById', 1)}>Airport by ID (Example: 1)</button>
+        <button onClick={() => handleReportSelection('getAirportByCode', 'JFK')}>Airport by Code (Example: JFK)</button>
+        <button onClick={() => handleReportSelection('getAirportByCity', 'New York')}>Airport by City (Example: New York)</button>
+
+        <button onClick={() => handleReportSelection('getAllFlights')}>All Flights</button>
+        <button onClick={() => handleReportSelection('getFlightById', 101)}>Flight by ID (Example: 101)</button>
+        <button onClick={() => handleReportSelection('getFlightsByDepartureAirportId', 1)}>Flights by Departure Airport ID (Example: 1)</button>
+        <button onClick={() => handleReportSelection('getFlightsByDepartureAirportCode', 'JFK')}>Flights by Departure Airport Code (Example: JFK)</button>
+        <button onClick={() => handleReportSelection('getFlightsByArrivalAirportId', 2)}>Flights by Arrival Airport ID (Example: 2)</button>
+        <button onClick={() => handleReportSelection('getFlightsByArrivalAirportCode', 'LAX')}>Flights by Arrival Airport Code (Example: LAX)</button>
+
+        <button onClick={() => handleReportSelection('getAllPassengers')}>All Passengers</button>
+        <button onClick={() => handleReportSelection('getPassengerById', 1)}>Passenger by ID (Example: 1)</button>
+        <button onClick={() => handleReportSelection('getPassengersByFlightNumber', 'AA123')}>Passengers by Flight Number (Example: AA123)</button>
+
+        <button onClick={() => handleReportSelection('getAllAircraft')}>All Aircraft</button>
+        <button onClick={() => handleReportSelection('getAircraftById', 1)}>Aircraft by ID (Example: 1)</button>
+
+        <button onClick={() => handleReportSelection('getAllAirlines')}>All Airlines</button>
+        <button onClick={() => handleReportSelection('getAirlineByCode', 'AA')}>Airline by Code (Example: AA)</button>
+
+        <button onClick={() => handleReportSelection('getGatesByAirportId', 1)}>Gates by Airport ID (Example: 1)</button>
       </nav>
-      <div>{renderEntityData()}</div>
+      {loading ? <p>Loading...</p> : renderReport()}
     </div>
   );
 }
