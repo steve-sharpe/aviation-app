@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import ReportButton from './components/ReportButton';
-import Dashboard from './components/Dashboard';
+import Header from './components/Header'; // Header component
+import Footer from './components/Footer'; // Footer component
+import ReportButton from './components/ReportButton'; // Reusable button component
+import Dashboard from './components/Dashboard'; // Dashboard component with Search and Charts
 
 const API_BASE_URL = 'http://localhost:8080'; // Backend base URL
 
@@ -36,17 +36,17 @@ function App() {
       getAllAirports: '/airports',
       getAirportById: `/airports/${parameter}`,
       getAirportByCode: `/airports/code/${parameter}`,
-      getAirportByCity: `/airports/city/${parameter}`,
+      getAirportByCity: `/airports/cities/${parameter}/airports`,
       getAllFlights: '/flights',
       getFlightById: `/flights/${parameter}`,
       getAllPassengers: '/passengers',
       getPassengerById: `/passengers/${parameter}`,
-      getPassengersByFlightNumber: `/passengers/flight/${parameter}`,
+      getPassengersByFlightNumber: `/flights/flightNumber/${parameter}/passengers`,
       getAllAircraft: '/aircrafts',
       getAircraftById: `/aircrafts/${parameter}`,
       getAllAirlines: '/airlines',
       getAirlineByCode: `/airlines/code/${parameter}`,
-      getGatesByAirportId: `/gates/airport/${parameter}`,
+      getGatesByAirportId: `/gates/by-airport/${parameter}`,
     };
 
     // Call the API
@@ -70,12 +70,12 @@ function App() {
           />
           <ReportButton
             label="Airport by ID (Example: 1)"
-            onClick={() => handleReportSelection('getAirportById', 1)}
+            onClick={() => handleReportSelection('getAirportById', 2)}
             isSelected={selectedReport === 'getAirportById'}
           />
           <ReportButton
             label="Airport by Code (Example: JFK)"
-            onClick={() => handleReportSelection('getAirportByCode', 'JFK')}
+            onClick={() => handleReportSelection('getAirportByCode', 'DFW')}
             isSelected={selectedReport === 'getAirportByCode'}
           />
           <ReportButton
@@ -90,7 +90,7 @@ function App() {
           />
           <ReportButton
             label="Flight by ID (Example: 101)"
-            onClick={() => handleReportSelection('getFlightById', 101)}
+            onClick={() => handleReportSelection('getFlightById', 10)}
             isSelected={selectedReport === 'getFlightById'}
           />
           <ReportButton
@@ -105,7 +105,7 @@ function App() {
           />
           <ReportButton
             label="Passengers by Flight Number (Example: AA123)"
-            onClick={() => handleReportSelection('getPassengersByFlightNumber', 'AA123')}
+            onClick={() => handleReportSelection('getPassengersByFlightNumber', 'AA1001')}
             isSelected={selectedReport === 'getPassengersByFlightNumber'}
           />
           <ReportButton

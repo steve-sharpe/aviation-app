@@ -1,6 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
+import SearchBar from './SearchBar';
+import Charts from './Charts';
 
 function Dashboard({ selectedReport, reportData }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+  };
+
+  // Normalize and filter the data based on the search term
+  const filteredData = Array.isArray(reportData)
+    ? reportData.filter((item) =>
+        JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : reportData
+    ? [reportData] // Wrap single object in an array
+    : [];
+
   if (!reportData || reportData.error) {
     return (
       <div style={styles.container}>
@@ -13,25 +30,26 @@ function Dashboard({ selectedReport, reportData }) {
   return (
     <div style={styles.dashboard}>
       <h2>Dashboard</h2>
+      <p>Selected Report: {selectedReport || 'None'}</p>
+
+      {/* Search Bar */}
+      <SearchBar searchTerm={searchTerm} onSearchChange={handleSearchChange} />
+
+      {/* Charts for Visualization */}
+      <Charts reportData={filteredData} selectedReport={selectedReport} />
+
+      {/* Filtered Data Display
       <div style={styles.grid}>
-        {/* Example metrics */}
-        <div style={styles.card}>
-          <h3>Total Items</h3>
-          <p>{Array.isArray(reportData) ? reportData.length : 'N/A'}</p>
-        </div>
-        <div style={styles.card}>
-          <h3>Selected Report</h3>
-          <p>{selectedReport}</p>
-        </div>
-        <div style={styles.card}>
-          <h3>First Entry</h3>
-          <pre style={styles.pre}>
-            {Array.isArray(reportData) && reportData.length
-              ? JSON.stringify(reportData[0], null, 2)
-              : 'No data'}
-          </pre>
-        </div>
-      </div>
+        {filteredData.length ? (
+          filteredData.map((item, index) => (
+            <div key={index} style={styles.card}>
+              <pre style={styles.pre}>{JSON.stringify(item, null, 2)}</pre>
+            </div>
+          ))
+        ) : (
+          <p>No matching data found.</p>
+        )}
+      </div>*/}
     </div>
   );
 }
@@ -53,12 +71,20 @@ const styles = {
     padding: '20px',
     backgroundColor: '#f8f9fa',
     borderRadius: '8px',
-    textAlign: 'center',
+    textAlign: 'left',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
   },
   pre: {
-    textAlign: 'left',
     whiteSpace: 'pre-wrap',
+    wordWrap: 'break-word',
+  },
+  container: {
+    marginTop: '20px',
+    padding: '15px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+    textAlign: 'center',
   },
 };
 
